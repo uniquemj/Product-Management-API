@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import ProductServices from "../services/product.services"
-import { IAuthRequest } from "../types/auth.types"
+import { IAuthRequest,  } from "../types/auth.types"
 
 
 const getProductList = async(req: IAuthRequest, res: Response) =>{
@@ -42,18 +42,24 @@ const createProduct = async(req: IAuthRequest, res: Response) =>{
         const {name, price, description, category, inventory} = req.body
         
         if(!name || !price){
-            res.status(400).send({message: "Nmae and price field is required"})
+            res.status(400).send({message: "Name and price field is required"})
             return
         }
-        
+
+        if(!category){
+            res.status(400).send({message: "category is required."})
+            return
+        }
+
         const productInfo = {
             name,
             price,
             description,
-            category, 
-            inventory
+            category: category.toLowerCase(), 
+            inventory,
         }
-        const product = await ProductServices.createProduct(productInfo)
+
+        const product = await ProductServices.createProduct(productInfo, req.user!._id!)
         res.status(201).send({message: "Product Created Succesfully", product})
     } catch(e:any){
         res.status(500).send({message: e.message})
@@ -69,12 +75,6 @@ const updateProduct = async(req: IAuthRequest, res: Response) =>{
         }
         const productInfo = req.body
         const {id} = req.params
-        
-        const task = await ProductServices.getProductById(id)
-        if(!task){
-            res.status(404).send({message: "Product with Id not found."})
-            return
-        }
         
         const product = await ProductServices.updateProduct(id, productInfo)
         res.status(200).send({message: "Product Updated.", product: product})

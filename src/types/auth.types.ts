@@ -16,3 +16,14 @@ export interface IAuthCredentials{
 export interface IAuthRequest extends Request{
     user?:Omit<IUserInfo, 'password'|'fullname'>
 }
+
+export interface IAuthResponse {
+    _id: string,
+    email: string,
+    role: string,
+}
+
+export interface IError{
+    status: number,
+    message: string
+}

@@ -3,6 +3,7 @@ import mongoose, { mongo } from 'mongoose'
 import 'dotenv/config'
 import cookieParser from "cookie-parser"
 import apiRoute from './routes/index'
+import errorHandler from './middlewares/errorhandler.middleware'
 
 const app = express()
 
@@ -11,6 +12,8 @@ app.use(express.urlencoded({extended: true}))
 app.use(cookieParser())
 
 app.use('/api', apiRoute)
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 const MONGODB_URL = process.env.MONGODB_URL as string
