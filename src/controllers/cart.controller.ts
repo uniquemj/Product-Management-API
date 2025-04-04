@@ -20,9 +20,12 @@ const addToCart = async(req: IAuthRequest, res: Response) =>{
 const getCartList = async(req: IAuthRequest, res: Response) =>{
     try{
         const carts = await CartServices.getCartList(req.user!._id!)
+        if(!carts){
+            throw createHttpError.NotFound("Cart is Empty")
+        }
         res.status(200).send({message: "Cart fetched Successfully.", response: carts})
     } catch(e:any){
-        throw createHttpError.Custom(e.status, e.message, e.errors)
+        throw createHttpError.Custom(e.statusCode, e.message, e.errors)
     }
 }
 const CartController = {

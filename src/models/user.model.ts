@@ -1,12 +1,24 @@
-import mongoose from 'mongoose'
+import {Schema, Document, Model, model} from 'mongoose'
 
-const userSchema = new mongoose.Schema({
+enum UserRole{
+    Admin='admin',
+    USER='user'
+}
+
+interface UserDocument extends Document{
+    fullname: string,
+    email : string,
+    password: string,
+    role: UserRole,
+}
+
+const userSchema: Schema<UserDocument> = new Schema({
     fullname: {type: String, required: true, minlength: 8, maxlength: 200},
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
-    role: {type: String, required: true, enum: ['admin', 'user']}
+    role: {type: String, required: true, enum: Object.values(UserRole)}
 }, {timestamps: true})
 
-const User = mongoose.model('user', userSchema)
+const User: Model<UserDocument> = model('user', userSchema)
 
 export default User

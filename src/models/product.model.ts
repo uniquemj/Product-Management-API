@@ -1,20 +1,29 @@
-import mongoose from 'mongoose'
+import {Document, Schema, Model, model} from 'mongoose'
 
-const productSchema = new mongoose.Schema({
-    name: {type: String, require: true},
-    price: {type: Number, require: true},
-    description: String,
-    category: [{type: mongoose.Schema.Types.ObjectId, ref: 'category'}],
-    inventory: {type: Number, default: 0},
+interface ProductDocument extends Document{
+    name: string,
+    price: number,
+    description: string,
+    category: Schema.Types.ObjectId[],
+    inventory: number,
     addedBy: {
-        type: new mongoose.Schema({
-            fullname: String,
-            email: String
-        }),
-        required: true
-    },
+        fullname: string,
+        email: string
+    }
+}
+
+const productSchema: Schema<ProductDocument> = new Schema({
+    name: {type: String,},
+    price: {type: Number},
+    description: {type: String},
+    category: [{type: Schema.Types.ObjectId, ref: 'category'}],
+    inventory: {type: Number},
+    addedBy: {
+        fullname: {type: String},
+        email: {type: String,}
+    }
 })
 
-const Product = mongoose.model('product', productSchema)
+const Product: Model<ProductDocument> = model('product', productSchema)
 
 export default Product

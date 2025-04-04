@@ -11,7 +11,7 @@ export interface ICategory{
 }
 
 export interface IProduct{
-    _id: Types.ObjectId,
+    _id?: Types.ObjectId,
     name: string,
     price: number,
     description ?: string,

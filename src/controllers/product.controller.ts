@@ -1,25 +1,20 @@
 import { Request, Response } from "express"
 import ProductServices from "../services/product.services"
 import { IAuthRequest,  } from "../types/auth.types"
-
+import createHttpError from "../utils.js/httpError.utils"
 
 const getProductList = async(req: IAuthRequest, res: Response) =>{
-    try{
-        const products = await ProductServices.getProductList()
-        if(products.length == 0){
-            res.status(404).send({message: "Product List is Empty."})
-            return
-        }
-        res.status(200).send(products)
-    } catch(e: any){
-        res.status(500).send({message: e.message})
+    const products = await ProductServices.getProductList()
+    if(products.length == 0){
+        throw createHttpError.NotFound("Product List is Empty")
     }
+    res.status(200).send(products)
 }
 
 const getProductById = async(req: IAuthRequest, res: Response) =>{
     try{
         const {id} = req.params
-        const product = await ProductServices.getProductById(id)
+        const product = await ProductServices.getProductById(id as string)
 
         if(!product){
             res.status(404).send({message: "Product with Id not found."})
@@ -54,12 +49,12 @@ const createProduct = async(req: IAuthRequest, res: Response) =>{
         const productInfo = {
             name,
             price,
-            description,
+            description: description ?? "",
             category: category.toLowerCase(), 
-            inventory,
+            inventory: inventory ?? 0,
         }
-
         const product = await ProductServices.createProduct(productInfo, req.user!._id!)
+
         res.status(201).send({message: "Product Created Succesfully", product})
     } catch(e:any){
         res.status(500).send({message: e.message})
