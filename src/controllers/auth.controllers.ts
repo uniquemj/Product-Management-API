@@ -65,6 +65,7 @@ const logout = async(req: Request, res: Response) =>{
         res.status(500).send({message: e.message})
     }
 }
+
 const registerAdmin = async(req: Request, res: Response) =>{
     try{
         const adminInfo = req.body

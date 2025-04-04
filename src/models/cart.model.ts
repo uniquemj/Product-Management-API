@@ -3,11 +3,10 @@ import {Document, Schema, Model, model} from 'mongoose'
 interface ProdcutSchema{
     p_id: Schema.Types.ObjectId,
     name: string,
-    price: number,
-    inventory: number
+    price: number
 }
 
-interface CartItemSchema{
+export interface CartItemSchema{
     product: ProdcutSchema,
     quantity: number
 }
@@ -24,8 +23,6 @@ const cartSchema: Schema <CartDocument> = new Schema({
                     p_id: String,
                     name: String,
                     price: Number,
-                    inventory: Number
-
             },
             quantity: {type: Number, default: 1}
     }]

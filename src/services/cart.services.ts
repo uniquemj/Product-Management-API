@@ -25,6 +25,10 @@ const addToCart = async(productId:string, quantity:number = 1, user_Id:string): 
         throw createHttpError.NotFound("User Not Found.")
     }
 
+    if(productExist.inventory < 1){
+        throw createHttpError.BadRequest("Product out of stock")
+    }
+
     const cart = await Cart.findOne({userId: user!._id})
 
     if(!cart){
@@ -36,7 +40,6 @@ const addToCart = async(productId:string, quantity:number = 1, user_Id:string): 
                         p_id: productExist?._id,
                         name: productExist?.name,
                         price: productExist?.price,
-                        inventory: productExist?.inventory
                     },
                     quantity: quantity
                 }
@@ -45,8 +48,6 @@ const addToCart = async(productId:string, quantity:number = 1, user_Id:string): 
         return result as unknown as ICart
     }
 
-
-    
     const result = await Cart.findOneAndUpdate(
         {userId: user_Id, 'items.product.p_id': productExist._id},
         {$inc: {'items.$.quantity': 1}},
@@ -59,7 +60,6 @@ const addToCart = async(productId:string, quantity:number = 1, user_Id:string): 
                 p_id: productExist?._id,
                 name: productExist?.name,
                 price: productExist?.price,
-                inventory: productExist?.inventory
             },
             quantity: quantity
         }
@@ -75,9 +75,55 @@ const addToCart = async(productId:string, quantity:number = 1, user_Id:string): 
     
 }
 
+const removeItemFromCart = async(userId: string, productId: string) =>{
+
+    const cart = await Cart.findOne({userId: userId})
+    if(!cart) throw createHttpError.BadRequest("Cart not found")
+
+    const productExistInCart = await Cart.findOne({userId: userId, 'items.product.p_id': productId})
+
+    if(!productExistInCart) throw createHttpError.NotFound("Product not found in cart.")
+    
+        const result = await Cart.findOneAndUpdate(
+        {userId: userId},
+        {$pull: {items: {'product.p_id': productId}}},
+        {new: true}
+    )
+
+    return result
+}
+
+const updateCartQuantity = async(userId: string, productId: string, quantity: number) =>{
+    const productExist = await Cart.findOne({userId: userId, 'items.product.p_id': productId})
+
+    if(!productExist){
+        throw createHttpError.BadRequest("Product not found.")
+    }
+
+    
+    const result = await Cart.findOneAndUpdate(
+        {userId:userId, 'items.product.p_id': productId},
+        {
+            $inc: {'items.$.quantity': quantity},
+        },
+        {new: true}
+    )
+    
+    result?.items.forEach(async (item)=>{
+        if(item.quantity < 1){
+            await Cart.findOneAndUpdate(
+                {userId: userId, 'items.product.p_id':productId},
+                {$pull: {items: {'product.p_id': productId}}}
+            )
+            return item
+        }
+    })
+}
 const CartServices = {
     addToCart,
-    getCartList
+    getCartList,
+    removeItemFromCart,
+    updateCartQuantity
 }
 
 export default CartServices

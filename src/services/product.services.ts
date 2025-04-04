@@ -59,6 +59,7 @@ const updateProduct = async(id: string, productInfo: IProduct) =>{
         return null
     }
 
+
     const category = await Category.findOne({name: productInfo.category})
 
     
@@ -71,7 +72,7 @@ const updateProduct = async(id: string, productInfo: IProduct) =>{
                 price : productInfo.price || product.price,
                 description : productInfo.description || product.description,
                 category: [...product.category, newCategory],
-                inventory: productInfo.inventory || product.inventory
+                inventory: product.inventory + productInfo.inventory || product.inventory
             }
             
             const result = await Product.findByIdAndUpdate({_id: id}, updateProductInfo, {new: true})
@@ -82,9 +83,8 @@ const updateProduct = async(id: string, productInfo: IProduct) =>{
             price : productInfo.price || product.price,
             description : productInfo.description || product.description,
             category: [...product.category, category],
-            inventory: productInfo.inventory || product.inventory
+            inventory: product.inventory+ productInfo.inventory || product.inventory
         }
-            
         const result = await Product.findByIdAndUpdate({_id: id}, updateProductInfo, {new: true})
         return result
     }
