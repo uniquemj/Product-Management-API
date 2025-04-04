@@ -44,8 +44,20 @@ An API use for managing Product, Cart and Order.
 5. **Delete Product**
 - `DELETE /api/products/:id`
 
-### Cart (Not yet done)
-### Order (Not yet done)
+### Cart
+1. Add to cart
+- `POST /api/carts`
+2. Get Cart List
+- `GET /api/carts`
+3. Remove Cart Item
+- `POST /api/carts/remove`
+4. Update Quantity of Cart
+- `POST /api/carts/quantity`
+### Order
+1. Create Order
+- `POST /api/orders`
+2. Get Order List
+- `GET /api/orders`
 
 ## Getting Started
 Follow these steps to setup and run the project:
