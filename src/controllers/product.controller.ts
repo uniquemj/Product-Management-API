@@ -4,11 +4,15 @@ import { IAuthRequest,  } from "../types/auth.types"
 import createHttpError from "../utils.js/httpError.utils"
 
 const getProductList = async(req: IAuthRequest, res: Response) =>{
-    const products = await ProductServices.getProductList()
-    if(products.length == 0){
-        throw createHttpError.NotFound("Product List is Empty")
+    try{
+        const products = await ProductServices.getProductList()
+        if(products.length == 0){
+            throw createHttpError.NotFound("Product List is Empty")
+        }
+        res.status(200).send(products)
+    }catch(e:any){
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
-    res.status(200).send(products)
 }
 
 const getProductById = async(req: IAuthRequest, res: Response) =>{
@@ -17,23 +21,17 @@ const getProductById = async(req: IAuthRequest, res: Response) =>{
         const product = await ProductServices.getProductById(id as string)
 
         if(!product){
-            res.status(404).send({message: "Product with Id not found."})
-            return
+            throw createHttpError.NotFound("Product with Id not found.")
         }
 
         res.status(200).send({message: "Product Fetched Successfully.", product: product})
     } catch(e:any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
 const createProduct = async(req: IAuthRequest, res: Response) =>{
     try{
-        if(req.user!.role === "user"){
-            res.status(403).send({message: "Unauthorized, Permission denied."})
-            return
-        }
-
         const {name, price, description, category, inventory} = req.body
         
         if(!name || !price){
@@ -57,42 +55,40 @@ const createProduct = async(req: IAuthRequest, res: Response) =>{
 
         res.status(201).send({message: "Product Created Succesfully", product})
     } catch(e:any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
 const updateProduct = async(req: IAuthRequest, res: Response) =>{
     try{
-
-        if(req.user!.role === "user"){
-            res.status(403).send({message: "Unauthorized, Permission denied."})
-            return
-        }
         const productInfo = req.body
         const {id} = req.params
         
         const product = await ProductServices.updateProduct(id, productInfo)
+        if(!product){
+            throw createHttpError.NotFound("Product with Id not found.")
+        }
         res.status(200).send({message: "Product Updated.", product: product})
     } catch(e:any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
 const removeProduct = async(req: IAuthRequest, res: Response) =>{
-    if(req.user!.role === "user"){
-        res.status(403).send({message: "Unauthorized, Permission denied."})
-        return
-    }
-    const {id} = req.params
+    try{
 
-    const task = await ProductServices.getProductById(id)
-    if(!task){
-        res.status(404).send({message: "Product with Id not found."})
-        return
+        const {id} = req.params
+        
+        const task = await ProductServices.getProductById(id)
+        if(!task){
+            throw createHttpError.NotFound("Product with Id not found.")
+        }
+        
+        const product = await ProductServices.removeProduct(id)
+        res.status(200).send({message: "Product removed.", product: product})
+    }catch(e:any){
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
-
-    const product = await ProductServices.removeProduct(id)
-    res.status(200).send({message: "Product removed.", product: product})
 }
 
 const ProductController = {

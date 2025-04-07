@@ -2,15 +2,14 @@ import jwt from "jsonwebtoken"
 import { IAuthRequest } from "../types/auth.types"
 import type { JwtPayload } from "jsonwebtoken"
 import { Response, NextFunction } from "express"
-
+import createHttpError from "../utils.js/httpError.utils"
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY as string
 
 const verifyToken = (req: IAuthRequest, res: Response, next: NextFunction) =>{
     const {USER_TOKEN} = req.cookies
 
     if(!USER_TOKEN){
-        res.status(401).send({message: "No token provided, Authorization denied."})
-        return
+        throw createHttpError.Unauthorized("No token provided, Authorization denied.")
     }
 
     try{
@@ -24,7 +23,7 @@ const verifyToken = (req: IAuthRequest, res: Response, next: NextFunction) =>{
 
         next()
     }catch(e){
-        res.status(400).json({message:"Token is not valid."})
+        throw createHttpError.BadRequest("Token is no valid.")
     }
 }
 

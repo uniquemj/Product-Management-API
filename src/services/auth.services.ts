@@ -2,6 +2,7 @@ import { IAuthCredentials, IUserInfo } from "../types/auth.types"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from "../models/user.model"
+import createHttpError from "../utils.js/httpError.utils"
 
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY as string
 
@@ -32,12 +33,12 @@ const loginUser = async(userCredentials: IAuthCredentials) =>{
 
     
     if(!userExist){
-        return {message: "User with email doesn't exist."}
+        throw createHttpError.BadRequest("User with email doesn't exist.")
     }
 
     const isPasswordMatch = await bcrypt.compare(password, userExist.password)
     if(!isPasswordMatch){
-        return {message: "Password Incorrect"}
+        throw createHttpError.BadRequest("Password Incorrect")
     }
 
     const token = jwt.sign({_id: userExist._id, email: userExist.email, role: userExist.role},JWT_SECRET_KEY,{expiresIn: "1d"} )

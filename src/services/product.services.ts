@@ -9,19 +9,13 @@ const getProductList = async () =>{
 }
 
 const getProductById = async(id: string): Promise<IProduct|null>=>{
-    try{
-        const product = await Product.findOne({_id: id}).populate('category','name -_id').lean()
-        return product as unknown as IProduct
-    } catch(e){
-        return null
-    }
+    const product = await Product.findOne({_id: id}).populate('category','name -_id').lean()
+    return product as unknown as IProduct
 }
 
 const createProduct = async(productInfo: IProduct, userId: string) =>{
     const user = await User.findById({_id: userId})
-    console.log(user)
     const category = await Category.findOne({name: productInfo.category})
-    console.log(category)
 
     if(!category){
         const category = await Category.create({name: productInfo.category})

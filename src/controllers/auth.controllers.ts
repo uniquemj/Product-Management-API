@@ -1,31 +1,28 @@
 import { Request, Response } from "express"
 import { COOKIE_NAMES } from "../constants/cookie.constants"
 import UserServices from "../services/auth.services"
+import createHttpError from "../utils.js/httpError.utils"
 
 const registerUser = async(req: Request, res: Response) =>{
     try{
         const userInfo = req.body
         if(!userInfo.fullname){
-            res.status(400).send({message: "fullname is required"})
-            return
+            throw createHttpError.BadRequest("fullname is required")
         }
         if(!userInfo.email){
-            res.status(400).send({message: "email is required"})
-            return
+            throw createHttpError.BadRequest("email is required")
         }
         if(!userInfo.password){
-            res.status(400).send({message: "password is required"})
-            return
+            throw createHttpError.BadRequest('password is required')
         }
         const role = "user"
         const user = await UserServices.registerUser(userInfo, role)
         if(!user){
-            res.status(400).send({message: "User with email exist."})
-            return
+            throw createHttpError.BadRequest('User with email exist.')
         }
         res.status(200).send({message:"User registered successfully.", response:user})
     } catch(e:any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
@@ -34,11 +31,6 @@ const login = async(req: Request, res: Response) =>{
         const userCredentials = req.body
 
         const userInfo = await UserServices.loginUser(userCredentials)
-
-        if(userInfo.message){
-            res.status(400).send({message: userInfo.message})
-            return
-        }
 
         res.cookie(
             COOKIE_NAMES.USER_TOKEN, userInfo.token,
@@ -53,7 +45,7 @@ const login = async(req: Request, res: Response) =>{
         res.status(200).send({message: "User Login Successfully", token: userInfo.token, user: userInfo.user})
 
     }catch(e:any){
-        res.status(500).send({message:e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
@@ -62,7 +54,7 @@ const logout = async(req: Request, res: Response) =>{
         res.clearCookie('USER_TOKEN')
         res.status(200).send({message: "User Logged out Successfully."})
     } catch(e:any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
@@ -70,26 +62,22 @@ const registerAdmin = async(req: Request, res: Response) =>{
     try{
         const adminInfo = req.body
         if(!adminInfo.fullname){
-            res.status(400).send({message: "fullname is required"})
-            return
+            throw createHttpError.BadRequest("fullname is required")
         }
         if(!adminInfo.email){
-            res.status(400).send({message: "email is required"})
-            return
+            throw createHttpError.BadRequest("email is required")
         }
         if(!adminInfo.password){
-            res.status(400).send({message: "password is required"})
-            return
+            throw createHttpError.BadRequest("password is requried")
         }
         const role = "admin"
         const user = await UserServices.registerUser(adminInfo, role)
         if(!user){
-            res.status(400).send({message: "User with email exist."})
-            return
+            throw createHttpError.BadRequest("User with email exist.")
         }
         res.status(200).send({message: "Admin Registered Successfully", response: user})
     }catch(e: any){
-        res.status(500).send({message: e.message})
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 

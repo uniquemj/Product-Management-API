@@ -11,7 +11,7 @@ const getCartList = async(req: IAuthRequest, res: Response) =>{
         }
         res.status(200).send({message: "Cart fetched Successfully.", response: carts})
     } catch(e:any){
-        throw createHttpError.InternalServerError(e.message)
+        throw createHttpError.Custom(e.statusCode, e.message)
     }
 }
 
