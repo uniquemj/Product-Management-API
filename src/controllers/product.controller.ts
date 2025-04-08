@@ -33,16 +33,6 @@ const getProductById = async(req: IAuthRequest, res: Response) =>{
 const createProduct = async(req: IAuthRequest, res: Response) =>{
     try{
         const {name, price, description, category, inventory} = req.body
-        
-        if(!name || !price){
-            res.status(400).send({message: "Name and price field is required"})
-            return
-        }
-
-        if(!category){
-            res.status(400).send({message: "category is required."})
-            return
-        }
 
         const productInfo = {
             name,

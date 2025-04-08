@@ -6,15 +6,6 @@ import createHttpError from "../utils.js/httpError.utils"
 const registerUser = async(req: Request, res: Response) =>{
     try{
         const userInfo = req.body
-        if(!userInfo.fullname){
-            throw createHttpError.BadRequest("fullname is required")
-        }
-        if(!userInfo.email){
-            throw createHttpError.BadRequest("email is required")
-        }
-        if(!userInfo.password){
-            throw createHttpError.BadRequest('password is required')
-        }
         const role = "user"
         const user = await UserServices.registerUser(userInfo, role)
         if(!user){
