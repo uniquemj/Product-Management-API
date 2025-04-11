@@ -4,7 +4,7 @@ export interface ICartPorductDetail{
     p_id: Types.ObjectId,
     name: string,
     price: number,
-    inventory: number
+    inventory?: number
 }
 export interface ICartItem{
     product: ICartPorductDetail,

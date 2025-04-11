@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken"
 import { IAuthRequest } from "../types/auth.types"
 import type { JwtPayload } from "jsonwebtoken"
 import { Response, NextFunction } from "express"
-import createHttpError from "../utils.js/httpError.utils"
+import createHttpError from "../utils/httpError.utils"
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY as string
 
 const verifyToken = (req: IAuthRequest, res: Response, next: NextFunction) =>{

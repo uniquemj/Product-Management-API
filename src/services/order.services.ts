@@ -1,61 +1,55 @@
-import Order from "../models/order.model"
-import Cart from "../models/cart.model"
-import Product from "../models/product.model"
-import createHttpError from "../utils.js/httpError.utils"
 
-const getOrderList = async(userId: string) =>{
-    const order = await Order.findOne({userId: userId}).populate('cart', 'items')
-    if(!order){
-        return null
-    }
-    return order
-}
+import { ProductRepository } from "../repository/product.repository"
+import { CartRepository } from "../repository/cart.repository"
+import { OrderRepository } from "../repository/order.repository"
 
-const createOrder = async(userId: string) =>{
-    const cart = await Cart.findOne({userId: userId}).populate('items','-_id')
+import createHttpError from "../utils/httpError.utils"
 
-    if(cart?.items.length == 0){
-        throw createHttpError.BadRequest("Cart is Empty. Can't create Order.")
-    }
-    const cartTotal = cart?.items.reduce((total, item):number=>{
-        total += (item.product.price * item.quantity)
-        return total
-    }, 0)
+export class OrderServices{
+    private readonly orderRepository: OrderRepository
+    private readonly cartRepository: CartRepository
+    private readonly productRepository: ProductRepository
 
-    const orderItem = {
-        userId: userId,
-        total: cartTotal,
-        cart: cart?.items
+    constructor(){
+        this.productRepository = new ProductRepository()
+        this.cartRepository = new CartRepository()
+        this.orderRepository = new OrderRepository()
     }
 
-    const order = await Order.create(orderItem)
-
-    // for updating product inventory
-    cart?.items.forEach(async(item)=>{
-        await Product.findOneAndUpdate(
-            {_id: item.product.p_id},
-            {
-                $inc: {
-                    inventory: -item.quantity
-                }
-            }
-        )
-    })
-
-    await Cart.findOneAndUpdate(
-        {userId: userId},
-        {
-            $set: {
-                items: []
-            }
+    getOrderList = async(userId: string) =>{
+        const orders = await this.orderRepository.getOrderList(userId)
+        if(!orders){
+            throw createHttpError.NotFound("Order List is Empty")
         }
-    )
-    return order
-}
+        return orders
+    }
+    
+    createOrder = async(userId: string) =>{
+        const cart = await this.cartRepository.getCart(userId)
+        
+        if(cart?.items.length == 0){
+            throw createHttpError.BadRequest("Cart is Empty. Can't create Order.")
+        }
 
-const OrderServices = {
-    getOrderList,
-    createOrder
+        const cartTotal = cart?.items.reduce((total, item):number=>{
+            total += (item.product.price * item.quantity)
+            return total
+        }, 0)
+        
+        const orderItem = {
+            userId: userId,
+            total: cartTotal as number,
+            cart: cart?.items
+        }
+        
+        const order = await this.orderRepository.createOrder(orderItem)
+        
+        // for updating product inventory
+        cart?.items.forEach(async(item)=>{
+            await this.productRepository.updateInventory(item.product.p_id as unknown as string, item.quantity)
+        })
+        
+        await this.cartRepository.resetCart(userId)
+        return order
+    }   
 }
-
-export default OrderServices

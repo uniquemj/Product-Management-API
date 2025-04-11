@@ -1,12 +1,12 @@
-import { Types } from "mongoose"
+import { Schema, Types } from "mongoose"
 
 export interface IOwner{
-    _id: string,
+    _id?: string,
     fullname: string,
     email: string
 }
 export interface ICategory{
-    _id?:string,
+    _id?: Types.ObjectId,
     name?:string
 }
 
