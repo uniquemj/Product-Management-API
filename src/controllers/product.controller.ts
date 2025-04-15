@@ -3,7 +3,8 @@ import {ProductServices} from "../services/product.services"
 import { IAuthRequest,  } from "../types/auth.types"
 import createHttpError from "../utils/httpError.utils"
 import authorizedRole from "../middlewares/role.middleware"
-
+import productSchema, { updateCategorySchema } from "../validate/product.validate"
+import validate from "../middlewares/validate.middleware"
 
 export class ProductController{
     readonly router: Router
@@ -21,9 +22,10 @@ export class ProductController{
 
         instance.router.get('/', authorizedRole('user','admin'), instance.getProductList)
         instance.router.get('/:id', authorizedRole('user','admin'), instance.getProductById)
-        instance.router.post('/', authorizedRole('admin'), instance.createProduct)
+        instance.router.post('/', authorizedRole('admin'), validate(productSchema), instance.createProduct)
         instance.router.put('/:id', authorizedRole('admin'), instance.updateProduct)
         instance.router.delete('/:id', authorizedRole('admin'), instance.removeProduct)
+        instance.router.patch('/:id', authorizedRole('admin'), validate(updateCategorySchema), instance.removeCategoryFromProduct)
 
         return instance
     }
@@ -55,7 +57,7 @@ export class ProductController{
                 name,
                 price,
                 description: description ?? "",
-                category: category.toLowerCase(), 
+                category: category, 
                 inventory: inventory ?? 0,
             }
             const product = await this.productServices.createProduct(productInfo, req.user!._id!)
@@ -86,6 +88,18 @@ export class ProductController{
             res.status(200).send({message: "Product removed.", product: product})
         }catch(e:any){
             throw createHttpError.Custom(e.statusCode, e.message)
+        }
+    }
+
+    removeCategoryFromProduct = async(req: IAuthRequest, res: Response) =>{
+        try{
+            const {id} = req.params
+            const {category} = req.body
+
+            const product = await this.productServices.removateCategoryFromProduct(id, category)
+            res.status(200).send({message: "Category removed from Product", product: product})
+        }catch(e: any){
+            throw createHttpError.Custom(e.statusCode, e.message, e.errors)
         }
     }
 }

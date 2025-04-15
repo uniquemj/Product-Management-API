@@ -21,9 +21,9 @@ export class CartController{
         CartController.instance = instance
 
         instance.router.get('/',allowedRole('user'), instance.getCartList)
-        instance.router.post('/',validate(alterCartSchema), allowedRole('user'), instance.addToCart)
-        instance.router.post('/remove', validate(alterCartSchema), allowedRole('user'), instance.removeItemFromCart)
-        instance.router.post('/quantity', validate(alterCartSchema), allowedRole('user'), instance.updateCartQuantity)
+        instance.router.post('/:id', allowedRole('user'), instance.addToCart)
+        instance.router.put('/remove/:id', allowedRole('user'), instance.removeItemFromCart)
+        instance.router.put('/quantity/:id', allowedRole('user'), instance.updateCartQuantity)
         return instance
     }
     getCartList = async(req: IAuthRequest, res: Response) =>{
@@ -37,9 +37,10 @@ export class CartController{
     
     addToCart = async(req: IAuthRequest, res: Response) =>{
         try{
-            const {productId, quantity} = req.body
-            
-            const result = await this.cartServices.addToCart(productId, quantity, req.user!._id!)
+            const {id} = req.params
+
+            const {quantity} = req.body
+            const result = await this.cartServices.addToCart(id, quantity, req.user!._id!)
             res.status(200).send({message: "Item Added to card.", response: result})
         } catch(e:any){
             throw createHttpError.Custom(e.statusCode, e.message)
@@ -48,9 +49,9 @@ export class CartController{
     
     removeItemFromCart = async(req: IAuthRequest, res: Response) =>{
         try{
-            const {productId} = req.body
+            const {id} = req.params
             const userId = req.user!._id!
-            const result = await this.cartServices.removeItemFromCart(userId, productId)
+            const result = await this.cartServices.removeItemFromCart(userId, id)
             res.status(200).send({message: "Item Removed from Cart."})
         } catch (e:any){
             throw createHttpError.Custom(e.statuscode, e.message)
@@ -59,9 +60,10 @@ export class CartController{
     
     updateCartQuantity = async(req: IAuthRequest, res: Response)=>{
         try{
-            const {productId, quantity} = req.body
+            const {id} = req.params
+            const {quantity} = req.body
             const userId = req.user!._id!
-            const result = await this.cartServices.updateCartQuantity(userId, productId, quantity)
+            const result = await this.cartServices.updateCartQuantity(userId, id, quantity)
             res.status(200).send({message: "Item quantity updated."})
         }catch(e:any){
             throw createHttpError.Custom(e.statuscode, e.message)

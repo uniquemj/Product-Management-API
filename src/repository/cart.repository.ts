@@ -40,4 +40,12 @@ export class CartRepository{
             }
         )
     }
+
+    async removeCartItem(userId: string, productId: string){
+        return await Cart.findOneAndUpdate(
+            { userId: userId },
+            { $pull: { items: { 'product.p_id': productId } } },
+            { new: true }
+        )
+    }
 }

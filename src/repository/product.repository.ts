@@ -1,3 +1,4 @@
+import { Schema, Types } from "mongoose";
 import Product from "../models/product.model";
 import { IProduct } from "../types/product.types";
 
@@ -35,5 +36,15 @@ export class ProductRepository{
                 }
             }
         )
+        return result
     }
+
+    async removeCategory(productId: string, categoryId: Types.ObjectId){
+        const result = await Product.findOneAndUpdate(
+            {_id: productId},
+            {$pull: {category: categoryId}},
+            {new: true}
+        )
+        return result
+    }   
 }

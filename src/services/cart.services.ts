@@ -95,12 +95,7 @@ export class CartServices {
 
         if (!productExistInCart) throw createHttpError.NotFound("Product not found in cart.")
 
-        const result = await Cart.findOneAndUpdate(
-            { userId: userId },
-            { $pull: { items: { 'product.p_id': productId } } },
-            { new: true }
-        )
-
+        const result = await this.cartRepository.removeCartItem(userId, productId)
         return result
     }
 

@@ -37,13 +37,31 @@ export class ProductServices{
         if(!user){
             throw createHttpError.NotFound("User with Id not found.")
         }
-        let category_list = []
-        const category = await this.categoryRepository.getCategory(productInfo.category as unknown as string)
-        
-        if(!category && productInfo.category){
-            const category = await this.categoryRepository.createCategory(productInfo.category as unknown as string)
 
-            category_list.push(category)
+        let category_list: ICategory[] = []
+
+        if(productInfo.category){
+            const category = await this.categoryRepository.getCategory(productInfo.category as unknown as string)
+            
+            if(!category){
+                const category = await this.categoryRepository.createCategory(productInfo.category as unknown as string)
+                    
+                category_list.push(category as ICategory)
+                const result = await this.productRepository.createProduct({
+                    name: productInfo.name,
+                    price: productInfo.price,
+                    description: productInfo.description,
+                    category: category_list as ICategory[],
+                    inventory: productInfo.inventory,
+                    addedBy: {
+                        fullname: user?.fullname,
+                        email: user?.email
+                    }
+                })
+                return result
+            }
+            category_list.push(category as ICategory)
+            
             const result = await this.productRepository.createProduct({
                 name: productInfo.name,
                 price: productInfo.price,
@@ -57,8 +75,6 @@ export class ProductServices{
             })
             return result
         }
-        category_list.push(category)
-        
         const result = await this.productRepository.createProduct({
             name: productInfo.name,
             price: productInfo.price,
@@ -111,11 +127,26 @@ export class ProductServices{
     }
     
     removeProduct = async(id: string) =>{
-        const task = await this.productRepository.getProductById(id)
-        if(!task){
+        const productExist = await this.productRepository.getProductById(id)
+        if(!productExist){
             throw createHttpError.NotFound("Product with Id not found.")
         }
         const product = await this.productRepository.removeProduct(id)
+        return product
+    }
+
+    removateCategoryFromProduct = async(productId: string, category: string)=>{
+        const productExist = await this.productRepository.getProductById(productId)
+        const categoryExist = await this.categoryRepository.getCategory(category)
+        
+        if(!categoryExist){
+            throw createHttpError.NotFound("Category with name not found.")
+        }
+
+        if(!productExist){
+            throw createHttpError.NotFound("Product with Id not found.")
+        }
+        const product = await this.productRepository.removeCategory(productId, categoryExist._id)
         return product
     }
 }
