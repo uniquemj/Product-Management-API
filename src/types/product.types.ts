@@ -1,21 +1,19 @@
 import { Schema, Types } from "mongoose"
+import { CategoryInfo } from "./category.types"
 
-export interface IOwner{
+export interface Owner{
     _id?: string,
     fullname: string,
     email: string
 }
-export interface ICategory{
-    _id?: Types.ObjectId,
-    name?:string
-}
 
-export interface IProduct{
+
+export interface ProductInfo{
     _id?: Types.ObjectId,
     name: string,
     price: number,
     description ?: string,
-    category ?: Array<ICategory>,
+    category ?: Array<CategoryInfo>,
     inventory: number,
-    addedBy?: IOwner
+    addedBy?: Owner
 }

@@ -1,5 +1,5 @@
 import { Response, Router } from "express"
-import { IAuthRequest, IError } from "../types/auth.types"
+import { AuthRequest} from "../types/auth.types"
 import {CartServices} from "../services/cart.services"
 import createHttpError from "../utils/httpError.utils"
 import allowedRole from "../middlewares/role.middleware"
@@ -21,12 +21,12 @@ export class CartController{
         CartController.instance = instance
 
         instance.router.get('/',allowedRole('user'), instance.getCartList)
-        instance.router.post('/:id', allowedRole('user'), instance.addToCart)
+        instance.router.post('/:id', allowedRole('user'), validate(alterCartSchema), instance.addToCart)
         instance.router.put('/remove/:id', allowedRole('user'), instance.removeItemFromCart)
         instance.router.put('/quantity/:id', allowedRole('user'), instance.updateCartQuantity)
         return instance
     }
-    getCartList = async(req: IAuthRequest, res: Response) =>{
+    getCartList = async(req: AuthRequest, res: Response) =>{
         try{
             const cart = await this.cartServices.getCartList(req.user!._id!)
             res.status(200).send({message: "Cart fetched Successfully.", response: cart})
@@ -35,10 +35,9 @@ export class CartController{
         }
     }
     
-    addToCart = async(req: IAuthRequest, res: Response) =>{
+    addToCart = async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
-
             const {quantity} = req.body
             const result = await this.cartServices.addToCart(id, quantity, req.user!._id!)
             res.status(200).send({message: "Item Added to card.", response: result})
@@ -47,7 +46,7 @@ export class CartController{
         }
     }
     
-    removeItemFromCart = async(req: IAuthRequest, res: Response) =>{
+    removeItemFromCart = async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
             const userId = req.user!._id!
@@ -58,7 +57,7 @@ export class CartController{
         }
     }
     
-    updateCartQuantity = async(req: IAuthRequest, res: Response)=>{
+    updateCartQuantity = async(req: AuthRequest, res: Response)=>{
         try{
             const {id} = req.params
             const {quantity} = req.body

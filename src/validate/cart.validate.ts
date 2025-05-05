@@ -2,6 +2,6 @@ import {z} from 'zod'
 
 
 export const alterCartSchema = z.object({
-    productId: z.string(),
-    quantity: z.number().optional()
+    productId: z.string().optional(),
+    quantity: z.number()
 })

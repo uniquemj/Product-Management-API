@@ -1,10 +1,10 @@
 import {Schema, Document, Model, model} from 'mongoose'
 import { CartItemSchema } from './cart.model'
 
-enum OrderStatus{
+export enum OrderStatus{
     PENDING="Pending",
     PROCESSING="Processing",
-    DELIVERED="DELIVERED"
+    DELIVERED="Delivered"
 }
 
 interface OrderDocument extends Document{

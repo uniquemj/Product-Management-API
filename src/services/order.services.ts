@@ -16,12 +16,24 @@ export class OrderServices{
         this.orderRepository = new OrderRepository()
     }
 
-    getOrderList = async(userId: string) =>{
-        const orders = await this.orderRepository.getOrderList(userId)
+    getOrderList = async() =>{
+        const orders = await this.orderRepository.getOrderList()
         if(!orders){
             throw createHttpError.NotFound("Order List is Empty")
         }
         return orders
+    }
+
+    getUserOrder = async(userId: string) =>{
+        try{
+            const orderExist = await this.orderRepository.getUserOrder(userId)
+            if(!orderExist){
+                throw createHttpError.NotFound("Order for User not found.")
+            }
+            return orderExist
+        }catch(error){
+            throw error
+        }
     }
     
     createOrder = async(userId: string) =>{
@@ -52,4 +64,21 @@ export class OrderServices{
         await this.cartRepository.resetCart(userId)
         return order
     }   
+
+    updateStatus = async(orderId: string, status: string)=>{
+        try{
+            const orderExist = await this.orderRepository.getOrder(orderId)
+            if(!orderExist){
+                throw createHttpError.NotFound("Order with Id not found.")
+            }
+            const statusInfo = {
+                status: status
+            }
+
+            const result = await this.orderRepository.updateStatus(orderId, statusInfo)
+            return result
+        }catch(error){
+            throw error
+        }
+    }
 }

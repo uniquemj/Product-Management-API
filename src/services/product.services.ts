@@ -1,8 +1,10 @@
 import { AuthRepository } from "../repository/auth.repository"
 import { ProductRepository } from "../repository/product.repository"
 import { CategoryRepository } from "../repository/category.repository"
-import { ICategory, IProduct } from "../types/product.types"
+import { ProductInfo } from "../types/product.types"
+import { CategoryInfo } from "../types/category.types"
 import createHttpError from "../utils/httpError.utils"
+import { ObjectId } from "mongoose"
 
 
 export class ProductServices{
@@ -24,62 +26,39 @@ export class ProductServices{
         return products
     }
     
-    getProductById = async(id: string): Promise<IProduct>=>{
+    getProductById = async(id: string): Promise<ProductInfo>=>{
         const product = await this.productRepository.getProductById(id)
         if(!product){
             throw createHttpError.NotFound("Product with Id not found")
         }
-        return product as unknown as IProduct
+        return product as unknown as ProductInfo
     }
     
-    createProduct = async(productInfo: IProduct, userId: string) =>{
+    createProduct = async(productInfo: ProductInfo, userId: string) =>{
         const user = await this.authRepository.getUserById(userId)
         if(!user){
             throw createHttpError.NotFound("User with Id not found.")
         }
 
-        let category_list: ICategory[] = []
+        let category_list: CategoryInfo[] = []
 
         if(productInfo.category){
             const category = await this.categoryRepository.getCategory(productInfo.category as unknown as string)
             
             if(!category){
                 const category = await this.categoryRepository.createCategory(productInfo.category as unknown as string)
-                    
-                category_list.push(category as ICategory)
-                const result = await this.productRepository.createProduct({
-                    name: productInfo.name,
-                    price: productInfo.price,
-                    description: productInfo.description,
-                    category: category_list as ICategory[],
-                    inventory: productInfo.inventory,
-                    addedBy: {
-                        fullname: user?.fullname,
-                        email: user?.email
-                    }
-                })
-                return result
+                category_list.push(category as unknown as CategoryInfo)
+            } else {
+                category_list.push(category as unknown as CategoryInfo)
             }
-            category_list.push(category as ICategory)
-            
-            const result = await this.productRepository.createProduct({
-                name: productInfo.name,
-                price: productInfo.price,
-                description: productInfo.description,
-                category: category_list as ICategory[],
-                inventory: productInfo.inventory,
-                addedBy: {
-                    fullname: user?.fullname,
-                    email: user?.email
-                }
-            })
-            return result
+        } else {
+            category_list = []
         }
         const result = await this.productRepository.createProduct({
             name: productInfo.name,
             price: productInfo.price,
             description: productInfo.description,
-            category: category_list as ICategory[],
+            category: category_list as CategoryInfo[],
             inventory: productInfo.inventory,
             addedBy: {
                 fullname: user?.fullname,
@@ -89,14 +68,14 @@ export class ProductServices{
         return result
     }
     
-    updateProduct = async(id: string, productInfo: IProduct) =>{
+    updateProduct = async(id: string, productInfo: ProductInfo) =>{
         const product = await this.productRepository.getProductById(id)
         if(!product){
             throw createHttpError.NotFound("Product with Id not found.")
         }
-        
         if(productInfo.category){
-            const category = await this.categoryRepository.getCategory(productInfo.category as unknown as string)
+            const category = await this.categoryRepository.getCategory(productInfo.category as unknown as string) as unknown as CategoryInfo
+            
             if(!category){
                 const newCategory = await this.categoryRepository.createCategory(productInfo.category as unknown as string)
                 
@@ -108,7 +87,7 @@ export class ProductServices{
                     inventory: product.inventory + productInfo.inventory || product.inventory
                 }
                 
-                const result = await this.productRepository.updateProduct(id, updateProductInfo as unknown as IProduct)
+                const result = await this.productRepository.updateProduct(id, updateProductInfo as unknown as ProductInfo)
                 return result
             }
             const updateProductInfo = {
@@ -118,7 +97,7 @@ export class ProductServices{
                 category: [...product.category, category],
                 inventory: product.inventory+ productInfo.inventory || product.inventory
             }
-            const result = await this.productRepository.updateProduct(id, updateProductInfo as unknown as IProduct)
+            const result = await this.productRepository.updateProduct(id, updateProductInfo as unknown as ProductInfo)
             return result
         }
         

@@ -1,6 +1,5 @@
 import Cart from "../models/cart.model"
-import User from "../models/user.model"
-import { ICart, ICartItem } from "../types/cart.types"
+import { CartInfo, CartItem } from "../types/cart.types"
 import { ProductRepository } from "../repository/product.repository"
 import { AuthRepository } from "../repository/auth.repository"
 import { CartRepository } from "../repository/cart.repository"
@@ -31,7 +30,7 @@ export class CartServices {
         return cart
     }
 
-    addToCart = async (productId: string, quantity: number = 1, user_Id: string): Promise<ICart> => {
+    addToCart = async (productId: string, quantity: number = 1, user_Id: string): Promise<CartInfo> => {
         const productExist = await this.productRepository.getProductById(productId)
 
         if (!productExist) {
@@ -64,7 +63,7 @@ export class CartServices {
                     }
                 ]
             })
-            return result as unknown as ICart
+            return result as unknown as CartInfo
         }
 
         const result = await this.cartRepository.updateQuantity(user_Id, productExist._id as unknown as string)
@@ -78,11 +77,11 @@ export class CartServices {
                 },
                 quantity: quantity
             }
-            const addItem = await this.cartRepository.pushToCart(user_Id, cartItem as unknown as ICartItem)
-            return addItem as unknown as ICart
+            const addItem = await this.cartRepository.pushToCart(user_Id, cartItem as unknown as CartItem)
+            return addItem as unknown as CartInfo
         }
 
-        return result as unknown as ICart
+        return result as unknown as CartInfo
 
     }
 

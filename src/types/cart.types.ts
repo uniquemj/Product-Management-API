@@ -1,18 +1,18 @@
 import {Types} from 'mongoose'
 
-export interface ICartPorductDetail{
+export interface CartPorductDetail{
     p_id: Types.ObjectId,
     name: string,
     price: number,
     inventory?: number
 }
-export interface ICartItem{
-    product: ICartPorductDetail,
+export interface CartItem{
+    product: CartPorductDetail,
     quantity: number
 }
 
 
-export interface ICart{
+export interface CartInfo{
     userId?: Types.ObjectId,
-    items: Array<ICartItem>
+    items: Array<CartItem>
 }

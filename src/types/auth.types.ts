@@ -1,6 +1,6 @@
 import { Request } from "express"
 
-export interface IUserInfo{
+export interface UserInfo{
     _id?: string,
     fullname:string,
     email:string,
@@ -8,22 +8,22 @@ export interface IUserInfo{
     role?: string
 }   
 
-export interface IAuthCredentials{
+export interface AuthCredentials{
     email: string,
     password: string
 }
 
-export interface IAuthRequest extends Request{
-    user?:Omit<IUserInfo, 'password'|'fullname'>
+export interface AuthRequest extends Request{
+    user?:Omit<UserInfo, 'password'|'fullname'>
 }
 
-export interface IAuthResponse {
+export interface AuthResponse {
     _id: string,
     email: string,
     role: string,
 }
 
-export interface IError{
+export interface Error{
     status: number,
     message: string
 }

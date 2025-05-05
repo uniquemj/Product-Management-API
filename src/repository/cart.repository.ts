@@ -1,5 +1,5 @@
 import Cart from "../models/cart.model";
-import { ICart, ICartItem } from "../types/cart.types";
+import { CartInfo, CartItem } from "../types/cart.types";
 
 export class CartRepository{
 
@@ -7,12 +7,12 @@ export class CartRepository{
         return await Cart.findOne({userId: userId})
     }
 
-    async createCart(cartInfo: ICart){
+    async createCart(cartInfo: CartInfo){
         const result = await Cart.create(cartInfo)
         return result
     }   
 
-    async pushToCart(user_Id: string, cartItem: ICartItem){
+    async pushToCart(user_Id: string, cartItem: CartItem){
         const result = await Cart.findOneAndUpdate(
             { userId: user_Id },
             { $push: { items: cartItem } },

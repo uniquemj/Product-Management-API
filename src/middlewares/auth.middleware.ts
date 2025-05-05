@@ -1,11 +1,11 @@
 import jwt from "jsonwebtoken"
-import { IAuthRequest } from "../types/auth.types"
+import { AuthRequest } from "../types/auth.types"
 import type { JwtPayload } from "jsonwebtoken"
 import { Response, NextFunction } from "express"
 import createHttpError from "../utils/httpError.utils"
 const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY as string
 
-const verifyToken = (req: IAuthRequest, res: Response, next: NextFunction) =>{
+const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) =>{
     const {USER_TOKEN} = req.cookies
 
     if(!USER_TOKEN){

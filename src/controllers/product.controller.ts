@@ -1,6 +1,6 @@
 import { Response, Router } from "express"
 import {ProductServices} from "../services/product.services"
-import { IAuthRequest,  } from "../types/auth.types"
+import { AuthRequest,  } from "../types/auth.types"
 import createHttpError from "../utils/httpError.utils"
 import authorizedRole from "../middlewares/role.middleware"
 import productSchema, { updateCategorySchema } from "../validate/product.validate"
@@ -25,12 +25,12 @@ export class ProductController{
         instance.router.post('/', authorizedRole('admin'), validate(productSchema), instance.createProduct)
         instance.router.put('/:id', authorizedRole('admin'), instance.updateProduct)
         instance.router.delete('/:id', authorizedRole('admin'), instance.removeProduct)
-        instance.router.patch('/:id', authorizedRole('admin'), validate(updateCategorySchema), instance.removeCategoryFromProduct)
+        instance.router.post('/:id/category', authorizedRole('admin'), validate(updateCategorySchema), instance.removeCategoryFromProduct)
 
         return instance
     }
 
-    getProductList = async(req: IAuthRequest, res: Response) =>{
+    getProductList = async(req: AuthRequest, res: Response) =>{
         try{
             const products = await this.productServices.getProductList()
             res.status(200).send(products)
@@ -39,7 +39,7 @@ export class ProductController{
         }
     }
     
-    getProductById = async(req: IAuthRequest, res: Response) =>{
+    getProductById = async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
             const product = await this.productServices.getProductById(id as string)
@@ -49,7 +49,7 @@ export class ProductController{
         }
     }
     
-    createProduct = async(req: IAuthRequest, res: Response) =>{
+    createProduct = async(req: AuthRequest, res: Response) =>{
         try{
             const {name, price, description, category, inventory} = req.body
             
@@ -68,7 +68,7 @@ export class ProductController{
         }
     }
     
-    updateProduct = async(req: IAuthRequest, res: Response) =>{
+    updateProduct = async(req: AuthRequest, res: Response) =>{
         try{
             const productInfo = req.body
             const {id} = req.params
@@ -81,7 +81,7 @@ export class ProductController{
         }
     }
     
-    removeProduct = async(req: IAuthRequest, res: Response) =>{
+    removeProduct = async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
             const product = await this.productServices.removeProduct(id)
@@ -91,7 +91,7 @@ export class ProductController{
         }
     }
 
-    removeCategoryFromProduct = async(req: IAuthRequest, res: Response) =>{
+    removeCategoryFromProduct = async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
             const {category} = req.body

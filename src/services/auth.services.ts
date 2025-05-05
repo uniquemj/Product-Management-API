@@ -1,4 +1,4 @@
-import { IAuthCredentials, IUserInfo } from "../types/auth.types"
+import { AuthCredentials, UserInfo } from "../types/auth.types"
 import bcrypt from 'bcryptjs'
 import User from "../models/user.model"
 import createHttpError from "../utils/httpError.utils"
@@ -12,7 +12,7 @@ export class AuthServices{
         this.authRepository = new AuthRepository()
     }
     
-    registerUser = async(userInfo:IUserInfo, role: string) =>{
+    registerUser = async(userInfo:UserInfo, role: string) =>{
         const {fullname, email, password} = userInfo
         const emailExist = await this.authRepository.getUser(email)
         
@@ -32,7 +32,7 @@ export class AuthServices{
         return newUser
     }
     
-    loginUser = async(userCredentials: IAuthCredentials) =>{
+    loginUser = async(userCredentials: AuthCredentials) =>{
         const {email, password} = userCredentials
         
         const userExist = await this.authRepository.getUser(email)

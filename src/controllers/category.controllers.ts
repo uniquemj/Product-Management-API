@@ -1,7 +1,7 @@
 import { Router, Response } from "express";
 import { CategoryServices } from "../services/category.services";
 import createHttpError from "../utils/httpError.utils";
-import { IAuthRequest } from "../types/auth.types";
+import { AuthRequest } from "../types/auth.types";
 import authorizedRole from "../middlewares/role.middleware";
 import validate from "../middlewares/validate.middleware";
 import { categorySchema } from "../validate/category.validate";
@@ -20,13 +20,13 @@ export class CategoryController{
         const instance = new CategoryController()
         CategoryController.instance = instance
 
-        instance.router.get('/', authorizedRole('admin'), instance.getCategoryList)
+        instance.router.get('/', authorizedRole('admin','user'), instance.getCategoryList)
         instance.router.post('/', authorizedRole('admin'), validate(categorySchema),instance.createCategory)
         instance.router.delete('/:id', authorizedRole('admin'), instance.removeCategory)
         return instance
     }
 
-    getCategoryList = async(req: IAuthRequest, res: Response)=>{
+    getCategoryList = async(req: AuthRequest, res: Response)=>{
         try{
             const result = await this.categoryServices.getCategoryList()
             res.status(200).send({message:"Category fetched.", response: result})
@@ -35,7 +35,7 @@ export class CategoryController{
         }
     }
 
-    createCategory= async(req: IAuthRequest, res: Response) =>{
+    createCategory= async(req: AuthRequest, res: Response) =>{
         try{
             const {name} = req.body
             const result = await this.categoryServices.createCategory(name)
@@ -45,7 +45,7 @@ export class CategoryController{
         }
     }
 
-    removeCategory= async(req: IAuthRequest, res: Response) =>{
+    removeCategory= async(req: AuthRequest, res: Response) =>{
         try{
             const {id} = req.params
             const result = await this.categoryServices.removeCategory(id)

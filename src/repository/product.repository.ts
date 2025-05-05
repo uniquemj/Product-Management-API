@@ -1,6 +1,6 @@
 import { Schema, Types } from "mongoose";
 import Product from "../models/product.model";
-import { IProduct } from "../types/product.types";
+import { ProductInfo } from "../types/product.types";
 
 export class ProductRepository{
     async getProductList(){
@@ -12,12 +12,12 @@ export class ProductRepository{
         return product
     }
 
-    async createProduct(productInfo: IProduct){
+    async createProduct(productInfo: ProductInfo){
         const result = await Product.create(productInfo)
         return result
     }
 
-    async updateProduct(id: string, productInfo : IProduct){
+    async updateProduct(id: string, productInfo : ProductInfo){
         const result = await Product.findOneAndUpdate({_id: id}, productInfo, {new: true})
         return result
     }

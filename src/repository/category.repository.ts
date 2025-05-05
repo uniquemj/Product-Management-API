@@ -1,10 +1,10 @@
 import Category from "../models/category.model";
-import { ICategory } from "../types/product.types";
+import { CategoryInfo } from "../types/category.types";
 
 
 
 export class CategoryRepository{
-    async getCategoryList(): Promise<ICategory[]|[]>{
+    async getCategoryList(): Promise<CategoryInfo[]|[]>{
         return await Category.find({})
     }
     async getCategory(name:string){
